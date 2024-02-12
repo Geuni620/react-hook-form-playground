@@ -1,9 +1,13 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
-type FormFields = {
-  email: string;
-  password: string;
-};
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+type FormFields = z.infer<typeof schema>;
 
 export const App = () => {
   const {
@@ -16,6 +20,7 @@ export const App = () => {
       email: 'dlrmsgnl0823@gmail.com',
       password: '12345678',
     },
+    resolver: zodResolver(schema),
   });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
@@ -31,32 +36,9 @@ export const App = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="">
-      <input
-        {...register('email', {
-          required: 'This is required',
-          validate: (value) => {
-            if (!value.includes('@')) {
-              return 'This is not a valid email';
-            }
-
-            return true;
-          },
-        })}
-        type="text"
-        placeholder="Email"
-      />
+      <input {...register('email')} type="text" placeholder="Email" />
       {errors.email && <p className="text-red-500">{errors.email.message}</p>}
-      <input
-        {...register('password', {
-          required: 'This is required',
-          minLength: {
-            value: 8,
-            message: 'Password must be at least 8 characters',
-          },
-        })}
-        type="password"
-        placeholder="Password"
-      />
+      <input {...register('password')} type="password" placeholder="Password" />
       {errors.password && (
         <p className="text-red-500">{errors.password.message}</p>
       )}
